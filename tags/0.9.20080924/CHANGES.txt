@@ -1,0 +1,38 @@
+0.9.20080924
+	* Upgraded to HtmlCleaner 2.1.
+
+	* Upgraded to HTTPClient 4.0 beta 1 and HTTPCore 4.0 beta 2.
+
+	* When creating a new URI object from an old, also copy all of
+	the old object's properties (such as auth etc).
+
+	* Added code for application/x-www-form-urlencoded encoding in
+	responses (and thus HTTP URI requests).
+
+	* Recognize Apache's Authorization "CGI" environment variable
+	as an HTTP header.
+
+0.9.20080821
+	* Loads of bug fixes.
+
+	* Added getScriptFilename(), getPathInfo(), getScriptName() to
+	Request object.
+
+	* Disabled validate-if-schema feature on XML parser.
+
+	* Added exit handler support, to execute JS code when an app
+	is being unloaded.
+
+	* The error handler now receives (req, ex) arguments.
+
+	* Added 'buffered' property to the Response object, which
+	makes ESXX buffer the response in RAM, in order to be able to provide
+	the Content-Length HTTP header.
+
+	* Added JMX support. Apps can be inspected and unloaded via
+	JConsole.
+
+	* Init script now work on RHEL/CentOS 4.x.
+
+0.9.20080619
+	* Initial binary release.
