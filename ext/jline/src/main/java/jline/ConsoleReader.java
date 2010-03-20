@@ -191,8 +191,6 @@ public class ConsoleReader implements ConsoleOperations {
      */
     public ConsoleReader(InputStream in, Writer out, InputStream bindings,
             Terminal term) throws IOException {
-        System.out.println("[Using jline with history search patch by mikiobraun]");
-        
         this.terminal = term;
         setInput(in);
         this.out = out;
@@ -516,6 +514,27 @@ public class ConsoleReader implements ConsoleOperations {
         } finally {
             terminal.afterReadLine(this, this.prompt, mask);
         }
+    }
+
+    /** Cause readLine to return.
+     *
+     *  To be used by a registered ActionListener.
+     *
+     *  @param clear  Set to true if the current buffer should be cleared.
+     */
+
+    public void exitReadLine(boolean clear) {
+      try {
+	moveToEnd();
+	printNewline();
+      }
+      catch (IOException ignored) {}
+
+      if (clear) {
+	buf.setLength(0);
+      }
+
+      state = RETURN_BUFFER;
     }
 
     /** Process a key in normal mode. */
