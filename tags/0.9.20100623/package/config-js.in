@@ -1,3 +1,0 @@
-# This file is sourced every time ESXX starts from a JS script
-# (esxx-js). You may use it to specifiy a script-specific
-# configuration.
