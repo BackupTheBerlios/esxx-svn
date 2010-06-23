@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+
+<project name="esxx" default="compile">
+  <taskdef name="one-jar" classname="com.simontuffs.onejar.ant.OneJarTask" 
+           classpath="lib/one-jar-ant-task-0.96.jar" onerror="report"/>
+
+
+  <description>esxx build file</description>
+
+  <property name="src.dir"     location="src"/>
+  <property name="jee.dir"     location="jee"/>
+  <property name="build.dir"   location="build"/>
+  <property name="classes.dir" location="${build.dir}/classes"/>
+  <property name="jeebuild.dir" location="${build.dir}/jee"/>
+  <property name="lib.dir"     location="lib"/>
+
+  <property name="version" value="src"/>
+
+  <property name="build.compiler" value="modern"/>
+
+  <path id="classpath">
+    <pathelement path="${classes.dir}"/>
+    <fileset dir="${lib.dir}" includes="**/*.jar"/>
+  </path>
+
+  <target name="init">
+    <tstamp/>
+    <mkdir dir="${classes.dir}"/>
+    <mkdir dir="${classes.dir}/rsrc"/>
+    <mkdir dir="${jeebuild.dir}"/>
+  </target>
+
+  <target name="compile" depends="init, ragel" description="compile everything">
+    <!-- Don't use -Xlint on the json code -->
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"
+           debug="true" deprecation="true" target="1.6">
+      <include name="org/json/*.java"/>
+    </javac>
+    <javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath"
+           debug="true" deprecation="true" target="1.6">
+      <compilerarg value="-Xlint"/>
+      <exclude name="org/json/*.java"/>
+    </javac>
+    <copy todir="${classes.dir}/rsrc">
+      <fileset dir="rsrc" excludes="*~ *.xslt *.css"/>
+    </copy>
+    <copy todir="${classes.dir}/rsrc">
+      <fileset dir="rsrc" includes="*.xslt *.css"/>
+      <filterset>
+	<filter token="CPACK_PACKAGE_VERSION" value="${version}" />
+      </filterset>
+    </copy>
+  </target>
+
+  <target name="jar" depends="compile" description="generate all main jar files" >
+    <jar jarfile="${build.dir}/main.jar" basedir="${classes.dir}">
+      <manifest>
+        <attribute name="Main-Class" value="org.esxx.Main"/>
+      </manifest>
+    </jar>
+
+    <one-jar destfile="${build.dir}/${ant.project.name}-small.jar">
+      <main jar="${build.dir}/main.jar"/>
+    </one-jar>
+
+    <one-jar destfile="${build.dir}/${ant.project.name}.jar">
+      <main jar="${build.dir}/main.jar"/>
+      <lib>
+        <fileset dir="${lib.dir}/core" includes="*.jar" />
+        <fileset dir="${lib.dir}/exe" includes="*.jar" />
+      </lib>
+    </one-jar>
+  </target>
+
+  <target name="jee-compile" depends="compile" description="compile jee">
+    <javac srcdir="${jee.dir}" destdir="${jeebuild.dir}" classpathref="classpath"
+           debug="true" deprecation="true" target="1.6">
+      <compilerarg value="-Xlint"/>
+    </javac>
+  </target>
+
+  <target name="jee-war" depends="jee-compile,jar" description="generate a JEE servlet">
+    <war destfile="${build.dir}/${ant.project.name}-jee.war"
+	 webxml="${jee.dir}/web.xml"
+	 filesetmanifest="merge">
+      <classes dir="${jeebuild.dir}"/>
+      <lib file="${build.dir}/main.jar"/>
+      <lib dir="${lib.dir}/core" includes="*.jar"/>
+      <lib dir="${lib.dir}/jee" includes="*.jar"/>
+      <zipfileset prefix="examples" dir="examples" excludes="*~"/>
+      <zipfileset prefix="share" dir="share" excludes="*~"/>
+      <zipfileset file="jee/build.xml"/>
+    </war>
+  </target>
+
+  <target name="gae-war" depends="jee-compile,jar" description="generate a GAE servlet">
+    <war destfile="${build.dir}/${ant.project.name}-gae.war"
+	 webxml="${jee.dir}/web.xml"
+	 filesetmanifest="merge">
+      <webinf file="${jee.dir}/appengine-web.xml"/>
+      <classes dir="${jeebuild.dir}"/>
+      <lib file="${build.dir}/main.jar"/>
+      <lib dir="${lib.dir}/core" includes="*.jar"/>
+      <lib dir="${lib.dir}/gae" includes="*.jar"/>
+      <zipfileset prefix="examples" dir="examples" excludes="*~"/>
+      <zipfileset prefix="share" dir="share" excludes="*~"/>
+      <zipfileset file="jee/build.xml"/>
+    </war>
+  </target>
+
+  <uptodate property="dbreference.uptodate" 
+	    srcfile="${src.dir}/org/esxx/dbref/DBReference.rl"
+	    targetfile="${src.dir}/org/esxx/dbref/DBReference.java" />
+
+  <target name="ragel" unless="dbreference.uptodate" description="generate code using Ragel" >
+    <echo message="Executing Ragel to generate DBReference.java" />
+    <exec executable="ragel">
+      <arg value="-J" />
+      <arg value="${src.dir}/org/esxx/dbref/DBReference.rl" />
+    </exec>
+  </target>
+
+  <target name="clean" description="clean up" >
+    <delete dir="${build.dir}"/>
+  </target>
+
+  <target name="test" depends="compile">
+    <fail message="This target requires a 'test' property. Example: -Dtest=xml" unless="test"/>
+    <echo message="Running tests/${test}.esxx ..." level="info"/>
+    <java classname="org.esxx.Main" classpathref="classpath" fork="true">
+      <jvmarg value="-Djdbc.drivers=org.postgresql.Driver" />
+      <arg value="--cgi" />
+      <arg value="--method" />
+      <arg value="GET" />
+      <arg value="--file" />
+      <arg file="tests/${test}.esxx" />
+    </java>
+  </target>
+
+  <target name="fcgi" depends="compile">
+    <java classname="org.esxx.Main" classpathref="classpath" fork="true">
+      <arg value="--bind" />
+      <arg value="7654" />
+    </java>
+  </target>
+
+  <target name="http" depends="compile">
+    <java classname="org.esxx.Main" classpathref="classpath" fork="true">
+      <arg value="--http" />
+      <arg value="7777" />
+    </java>
+  </target>
+
+  <target name="ajp" depends="compile">
+    <java classname="org.esxx.Main" classpathref="classpath" fork="true">
+      <arg value="--ajp" />
+      <arg value="7655" />
+    </java>
+  </target>
+</project>
