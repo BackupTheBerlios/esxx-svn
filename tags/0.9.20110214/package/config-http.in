@@ -1,0 +1,17 @@
+# This file is sourced when ESXX is started from the HTTP initscript
+# (esxx-http). It should be named esxx-${ESXX_INSTANCE}
+
+# Override default port and user, enable JMX on port 4568
+# ESXX_OPTIONS="--http 8080 \
+#               --http-root /var/www/ \
+#               --user httpuser \
+#               --jvmargs '-Dcom.sun.management.jmxremote 
+#                          -Dcom.sun.management.jmxremote.port=4568
+#                          -Dcom.sun.management.jmxremote.authenticate=false
+#                          -Dcom.sun.management.jmxremote.ssl=false'"
+
+# Force a custom Java version
+# export JAVA_HOME="/opt/java/jdk1.6.0_20"
+
+# Force default include directories
+# export ESXX_PATH="/opt/esxx/share:/opt/esxx/share/site"
