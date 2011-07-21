@@ -1,0 +1,396 @@
+0.9.2010xxxx
+
+	* Upgraded embedded H2 to 1.3.154, 2011-04-04.
+
+	* Upgraded the JSON classes to version 2009-09-11.
+
+	* Upgraded HttpComponents to 4.0.1.
+
+	* The Ajax Blog and app-form-sql examples now uses an
+	in-memory database by default.
+
+	* Various minor changes to get ESXX run in Googles App Engine
+	simulator.
+
+	* Now uses a ScheduledExecutorService instead of custom
+	threads and Timers. Set esxx.worker_threads to -1 for an
+	unbounded thread pool, or a fixed number to specifiy the
+	maximum number of worker threads to use.
+
+	* Implemented a Googles App Engine compatible, single-threaded
+	ScheduledExecutorService. Enable by setting
+	esxx.worker_threads to 0.
+
+	* Implemented a HttpClient ConnectionManager that can be used
+	in Google App Engine. Yay! Full HTTP support, including
+	cookies and HTTP Authentication, on GAE!
+
+	* Added support for the OAuth HTTP authentication scheme.
+
+	* Unknown disk objects are now marked as "object" in directory
+	listings.
+
+	* When referencing arguments using the {name} syntax in URIs
+	and SQL queries, name may now be a number referring to an
+	Array or XMLList member.
+
+	* Packaging reorganization: For RPM/DEB/IPS/OSX packages, keep
+	required JARs in the filesystem instead of embedding inside
+	esxx.jar. This makes startup faster. Also, allow users to add
+	their own JARs as /usr/share/esxx/site/lib/*.jar.
+
+	* Removed CGI support. Rewrote and simplified the request
+	handling.
+
+	* The JS request object now includes a contentLength field.
+
+	* Switched HTTP implementation from Sun's semi-official
+	com.sun.net.httpserver to Jetty 7 (RC6). ESXX got larger, but
+	more compatible with other JVM implementations.
+
+	* Added AJP/1.3 support. ESXX can now be used with
+	mod_jk/mod_proxy_ajp as an alternative to FastCGI or HTTP
+	(courtesy of Jetty).
+
+	* The -r/--http-root command line parameter now applies to
+	both AJP/HTTP and FCGI modes. In FCGI mode, it means that only
+	${REQUEST_URI} will be used by ESXX -- ${PATH_TRANSLATED}/
+	${SCRIPT_FILENAME} are ignored if this flag is supplied.
+
+	* The error handler is now also executed if the XSLT
+	transformation fails.
+
+	* The message/rfc822 parser now accepts param x-strip-js to
+	remove scripts from embedded HTML.
+
+	* Error responses now include a plain-text version as a
+	comment at the top. Useful if you're reading the error message
+	in an HTTP analyzer.
+
+	* Bug fix: Content-Type override did not work for http: and
+	https: protocols.
+
+	* SQL query responses now include result set metadata, if a
+	'$meta' parameter is specified. Also, results are returned as
+	an XMLList, one entry per result set. Cells that contains
+	NULLs are marked with an isNull='true' attribute.
+
+	* Added a --shell command line parameter, which starts the
+	ESXX Shell.
+
+	* The esxx-js shell wrapper now uses the client Java VM by
+	default, for faster startup times. (You could also try to
+	generate the shared class dump using the command
+	"java -client -Xshare:dump", which might improve things
+	even more.)
+
+	* The SQL query builder now supports JS objects as parameters,
+	in which case all enumberable properties will be added as a
+	comma-separeted list. Very useful for queries like
+	"SELECT ... WHERE IN (param)".
+
+	* The URI object's toString() value now returns the URI in Unicode
+	formate (like an IRI). The valueOf() function has been changed to
+	return the strict US-ASCII URI string.
+
+	* Changed the default Logger level to 'debug'.
+
+	* GAEClientConnection.sendRequestHeader encoded the URI twice
+	and did not handle the query string at all. Thanks to Thibaut
+	for discovering this and suggesting a fix! [Thibaut@blogger.com]
+
+	* load() on file: URIs now use the file extension to guess
+	content type. An ESXX response handler may now also return a
+	Java File object, and the file extension is used to guess
+	content type.
+
+	* JDBC auth: The correct property name is "user", not
+	"username". This made the "auth" property on JDBC URIs
+	useless.
+
+	* URI auth: If username and password is supplied in the
+	auth-info part, use it. Also, new matcher keys: "user-info"
+	and "uri".
+
+	* HTTP/HTTPS auth can now match on 'mechanism' (BASIC, DIGEST
+	etc).
+
+	* Made GAEClientConnection.sendRequestEntity() more robust by
+	accepting requests with a null entity. [lonikar]
+
+	* Added CommonJS modules support.
+
+	* Added support for JDBC fragment references.
+
+	* Added modify() to the URI class, which translates to HTTP
+	PATCH and SQL UPDATE.
+
+	* Added XML Schema validation support.
+
+	* The HTTP protocol now uses preemptive authentication for
+	subsequent requests.
+
+	* Treat empty Content-Type and Content-Length headers as
+	non-existing.
+
+	* Changed .esxx MIME type from application/x-esxx+xml
+	to application/vnd.esxx.webapp+xml.
+
+	* Changed .js MIME type from application/x-javascript to
+	text/javascript.
+
+	* GAEClientConnection.sendRequestHeader failed to add a colon
+	before the port number to the URI, in case such a number was
+	specified. [Nello]
+
+	* Added "esxx.net.timeout" config option, which specifies
+	socket timeout (in decimal seconds) used for HTTP/AJP and
+	FastCGI.
+
+	* The FastCGI server now reads each request in a separate
+	thread. Upgraded jfast.jar to 1.0lcs3.
+
+	* The current set of workloads can now be inspected using JMX.
+
+	* Timer handles can now run in 'fixed-delay' or 'fixed-rate'
+	mode, specified by the 'mode' attribute. Default is 'fixed-rate'.
+
+	* Added 'params' member to ESXX.JSRequest. Store whatever you
+	wish here.
+
+	* The application/octet-stream parser now returns the data as
+	a Java InputStream instead of ByteBuffer per default, in order to
+	handle large files. The 'x-format' parameter can be set to
+	'stream' or 'buffer' to select behaviour.
+
+	* Switched from HtmlCleaner to the Validator.nu HTML 5 parser.
+
+	* URI methods save, append and modify may now optionally
+	specify the received content type.
+
+	* Added a CSV parser and serialized (text/csv).
+
+0.9.20090521
+	* Added the XKCD example from the Wiki.
+
+	* Fixed apps in examples to use req.scriptURI instead of the
+	web-server dependent CGI variable SCRIPT_NAME.
+
+	* Added DOCUMENT_ROOT CGI variable in HTTP mode.
+
+	* Added Java EE Servlet support: ESXX can now run inside
+	a J2EE application server, such as Glassfish or Tomcat.
+
+	* XSLT parameters may now be specified via the property
+	'params' in the ESXX.Response object.
+
+	* A build.xml file is now included in esxx.war, so it can
+	easily be rebuilt with custom content.
+
+	* Added 'esxx.host', which refers to a host object that can be
+	set when ESXX is embedded. For instance, If ESXX is deployed as a
+	Servlet, 'esxx.host' will refer to that Servlet.
+
+	* Added HTTP filter support. And there was much rejoicing.
+
+	* Property requestMethod is now available on the ESXX.Request
+	object.
+
+	* Upgraded to Rhino 1.7 release 2 + patch for bug #477233.
+
+	* Added command line option --db-console to start H2's
+	database console.
+
+	* Added the "Hello world" and "The Ajax Blog" tutorials to the
+	examples.
+
+	* All-new look of error messages and file listings. No more
+	references to esxx.org resources, everything is now embedded.
+
+	* Updated to Saxon 9.0.0.8.
+
+	* Added an uninstall script for OSX.
+
+	* Removed utility file esxx/Object.js. Use Function.bind()
+	from esxx/harmony.js instead of Object.$(). Hey, it's still
+	alpha!
+
+	* Well, actually it's not. Hello, beta!
+
+0.9.20090201
+	* Fixed bug #14765: req.scriptURI has problems with encoded
+	URI:s.
+
+	* Fixed problems with the init script that made chkconfig not
+	recognize it.
+
+	* The XMIME/XMTP parser and serializer how handles all text/*
+	MIME types, not just text/plain.
+
+	* esxx.include now takes a secondary argument, scope, which
+	can be used to specify in what scope the included file should
+	be evaluated in.  If unspecified, the global scope is used
+	just like before.
+
+	* When using esxx.include from a function, files are now
+	first resolved relative the working directory.
+
+	* esxx.global is now available, and refers to the global
+	scope.
+
+	* The HTTP protocol handler now simply throws an ESXX.Response
+	object if the HTTP status in load(), save(), append() or
+	remove() is not 2xx.
+
+	* Added IPS (OpenSolaris) package support, including SVC
+	management script and manifest.
+
+	* Added proper PackageMaker (OSX), DEB and RPM support. CPack
+	is now only used for the Windows packages.
+
+	* Added ESXX.Response methods: toString(), valueOf() and
+	[from Java] getDefaultValue().
+
+	* Added a dns: URI protocol handler, with LDAP URI-inspired
+	query part.
+
+	* The --no-handler option now takes a regex argument which
+	is matched against SERVER_SOFTWARE. This makes it possible
+	to use both Apache and Lighttpd with the same ESXX server
+	by specifying "--no-handler=lighttpd.*" (which happens to
+	be the default, so you don't actually have to specify it).
+
+	* SOAP handlers can now match on SOAPAction and URI just like
+	HTTP handlers.
+
+	* XSLT stylesheets can now match on content type and URI,
+	similar to HTTP and SOAP handlers.
+
+	* Added a "javaURI" property to the URI class.
+
+	* Added include files "json2.js" (from json.org) and
+	"esxx/harmony.js", which adds a few useful functions from
+	the current ECMAScript 3.1 proposal.
+
+	* Removed setLevel() from the Logger class in favour of a
+        "level" propery on the prototype object.
+
+	* Upgraded to Rhino 1.7 release 2 RC3.
+
+	* Upgraded embedded H2 to 1.1.107, 2009-01-24.
+
+0.9.20081101
+	* Bug fixes as usual.
+
+	* Upgraded to Rhino 1.7 release 2 PRERELEASE 2008 09 30, so we
+	can extend abstract Java classes, which didn't work in 1.7r1.
+
+	* esxx.document can now be modified.
+
+	* Enabled a proper https URI implementation.
+
+	* New esxx.wait signature: esxx.wait(mutex, timeout,
+	function), which waits on mutex until function returns true.
+
+	* The URI constructor now allows {...} syntax and a parameter
+	object to automatically build proper URIs. The file URI class
+	will also refuse URIs with encoded path separators in then.
+
+	* The Request object now has requestURI, scriptURI, scriptName
+	and pathInfo properties.
+
+	* Request.query now only contains parameters from the
+	URI. 'application/x-www-form-urlencoded'-encoded data is now
+	in Request.message.
+
+	* Added Request.contentType, which contains the basic content
+	type (without parameters).
+
+	* The application's error handler may now return null or
+	undefined to make it act as if there were not error handler
+	installed at all.
+
+	* Added esxx/Object.js include file, which adds extras to the
+	Object class. Currently, it only adds $(), which can be used
+	to sanitize the 'this' variable in closures.
+
+	* Added --no-handler option, for web servers that invoke
+	FastCGI servers without an extra file type handler, such as
+	lighttpd.
+
+	* Embedded H2 updated to 1.1.102, 2008-10-24.
+
+	* The stylesheets are now independent from the applications
+	and may be viewed and unloaded via JMX. It's also possible to
+	view runtime statistics of individual stylesheets.
+
+	* Added support for running multiple ESXX instances via init
+	scripts.
+
+	* Command line script files now reads config file from
+	/etc/{default,defaults,sysconfig}/esxx-js so remote JMX ports
+	do not interfer with scripts.
+
+	* Moved global constructors Logger, Request and Response to
+	ESXX.Logger, ESXX.Request and ESXX.Response in order to reduce
+	the number of ESXX-introduced global variables. URI stays.
+
+	* New class, ESXX.LRUCache. New magic property, esxx.tls,
+	which is a per-application, per-thread LRUCache object, and
+	non-magic esxx.pls, which is just a per-application LRUCache.
+
+	* Added a multipart/form-data parser to handle HTTP file
+	uploads.
+
+	* Added timer handler support.
+
+	* All time parameters are now in seconds (may be decimal),
+	including system properties, methods in ESXX and LRUCache, and
+	the <timer> element's attributes.
+
+0.9.20080927
+	* Fixed a bug that closed System.in in script mode, causing
+	System.console() to return null.
+
+	* When using the built-in HTTP server, a body will never be
+	sent when the status code is 1xx, 204 or 304, as per HTTP
+	spec.
+
+0.9.20080924
+	* Upgraded to HtmlCleaner 2.1.
+
+	* Upgraded to HTTPClient 4.0 beta 1 and HTTPCore 4.0 beta 2.
+
+	* When creating a new URI object from an old, also copy all of
+	the old object's properties (such as auth etc).
+
+	* Added code for application/x-www-form-urlencoded encoding in
+	responses (and thus HTTP URI requests).
+
+	* Recognize Apache's Authorization "CGI" environment variable
+	as an HTTP header.
+
+0.9.20080821
+	* Loads of bug fixes.
+
+	* Added getScriptFilename(), getPathInfo(), getScriptName() to
+	Request object.
+
+	* Disabled validate-if-schema feature on XML parser.
+
+	* Added exit handler support, to execute JS code when an app
+	is being unloaded.
+
+	* The error handler now receives (req, ex) arguments.
+
+	* Added 'buffered' property to the Response object, which
+	makes ESXX buffer the response in RAM, in order to be able to provide
+	the Content-Length HTTP header.
+
+	* Added JMX support. Apps can be inspected and unloaded via
+	JConsole.
+
+	* Init script now work on RHEL/CentOS 4.x.
+
+0.9.20080619
+	* Initial binary release.
